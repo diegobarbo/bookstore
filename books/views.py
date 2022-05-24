@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import (
 from django.views.generic import ListView, DetailView
 from .models import Book
 from django.db.models import Q
+from django.db import models
 
 
 class BookListView(LoginRequiredMixin, ListView):
@@ -24,9 +25,16 @@ class SearchResultsListView(ListView):
     model = Book
     context_object_name = 'book_list'
     template_name = 'books/search_results.html'
+    queryset = Book.objects.filter(title__icontains='cover')
 
     def get_queryset(self):
         query = self.request.GET.get('q')
         return Book.objects.filter(
-            Q(title__icontains='query') | Q(title__icontains='query')
+            Q(title__icontains=query) | Q(author__icontains=query)
         )
+
+
+class SearchResultsView(models.Model):
+    model = Book
+    context_object_name = 'book_list'
+    template_name = 'books/search_results.html'
